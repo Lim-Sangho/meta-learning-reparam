@@ -63,9 +63,9 @@ class GNN(nn.Module):
         super(GNN, self).__init__()
         self.n_hidden = n_hidden
         self.n_layer = n_layer
-        self.param = nn.Parameter(torch.Tensor(len(edge_type), n_hidden, n_hidden).normal_())
+        self.param = nn.Parameter(torch.zeros(len(edge_type), n_hidden, n_hidden).normal_())
         self.conv = WeightedConv(n_hidden)
-        self.mlp = MLP([n_hidden, n_hidden * 2, n_hidden * 2, 1])
+        self.mlp = MLP([n_hidden, n_hidden * 10, n_hidden * 10, 1])
     
     def to_homogeneous(self, G):
         """
@@ -78,7 +78,7 @@ class GNN(nn.Module):
         for etype in G.canonical_etypes:
             self.param_id += [edge_id[etype]] * G.num_edges(etype)
         self.param_id = torch.tensor(self.param_id)
-        G.ndata['feature'] = {'const': const.unsqueeze(-1) ** torch.ones(self.n_hidden),
+        G.ndata['feature'] = {'const': const.unsqueeze(-1) ** torch.arange(self.n_hidden),
                               'sample': torch.zeros(G.num_nodes('sample'), self.n_hidden)}
         G_homo = dgl.to_homogeneous(G, ndata=['feature'])
         return G_homo

@@ -41,11 +41,15 @@ If a random variable node $v$ is in the location-scale family, we use its GNN ou
 Once we train the GNN, we can run the forward pass of GNN and obtain $\lambda$ values of new models that are not included in the training dataset. With these $\lambda$'s, we reparameterised the model and then applied HMC on top of it.
 
 ## Experiments
-For the training, we randomly generated 1000 Neal's funnel models modified with additional observations $y \sim N(x, \sigma)$ where $y \in [-20, 20]$ and $\sigma \in [0.1, 20]$. As $y$ moves away from $0$ and $\sigma$ approaches $0$, the posterior takes on a different shape from the original Neal's funnel. For the test (i.e., obtaining $\lambda$ and running HMC), we use Neal's funnel models with observations with $y \in \{-20, -10, 0, 10, 20\}$ and $\sigma \in \{0.1, 5, 10, 15, 20\}$.
+For the training, we randomly generated 1000 Neal's funnel models modified with additional observations $y \sim N(x, \sigma)$ where $y \in [-20, 20]$ and $\sigma \in [0.1, 20]$. As $y$ moves away from $0$ and $\sigma$ approaches $0$, the posterior takes on a different shape from the original Neal's funnel. For the test (i.e., obtaining $\lambda$ and running HMC), we use Neal's funnel models with observations with $y \in \{-20, -10, 0, 10, 20\}$ and $\sigma \in \{0.1, 5.075, 10.05, 15.025, 20\}$.
 
 - Comparison with VIP
 - Comparison by effective sample size (ESS)
 - Comparison by Gelman-Rubin (GR) diagnostic
 
 ## Discussion
-- Implicit GNN
+- Implicit GNN <br>
+Time seires model, long range dependence <br>
+Naively increasing the number of steps $(L)$ in the GNN is not a good solution as it can lead to the oversmoothing problem in GNNs.
+
+- Meta-learning reparameterisation with more flexible transformations, such as inverse autoregressive flows (IAF).
