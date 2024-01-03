@@ -1,15 +1,34 @@
 # Meta-learning Optimal Reparameterisation of Probabilistic Programs
 
 ## Introduction
-Existing posterior inference algorithms only work with a specific probabilistic model at a time.
-We propose a meta-learning approach to learn an inference algorithm that works with a wide range of models as a white-box manner.
+Marcov Chain Monte Carlo (MCMC) has been one of successful tools in Bayesian inferences, which gaurantees convergence to exact target statistics.
+The main concern in MCMC is to sample in high dimensional spaces, which needs exponentially wide exploration. Therefore, Hamiltonian Monte Carlo (HMC) is widely used to mitigate the obstacle from high dimensionality by using gradients of target distributions to explore the spaces. 
+However, its convergence can be slow or even fail if a target density has poor geometric properties such as a multimodal shape and drastic changes of scale in the target density. 
+
+Reparameterisation, which transforms the target distribution with bijective functions so that the target, is one of a frequently-uesd method to change the poor landscape of the target distribution into a proper landscape.
+Since appropriate bijective functions for reparameterisation is specific to the target distribution, 
+Finding bijective transforms manually needs deep understanding of the target distribution. 
+
+Thanks to probabilistic programming, which treats probabilistic models as programs to which methods in programming analysis can be applicable, there were some researches which constructed parameterised bijective functions compatible to the target distribution and learned the parameters to make the functions become an proper reparmetersation.
+However, those researches needs to train the parameters from scaratches for every new model, so it is hard to use their methods in model finding.
+
+In our research, instead of finding a reparameterisation for a speicific model, we tried to meta-learn the reparameterisation; Learning a function which gets probabilistic models (in forms of probabilistic programs) and outputs proper bijective functions for reparameterisation. First, by parsing a probabilistic program, we obtained a graph representation of a probabilistic model. Then, we used GNN on the graph representation to construct bijective functions compatible to the model. Finally, We trained GNN for a wide range of models with a proper probabilistic loss to achieve smooth landscapes of reparemeterised models.
 
 ## Preliminary
-- Probabilistic programming
-- Hamiltonian Monte Carlo (HMC)
-- Reparameterisation
-  - Neal's funnel
-- Graph Neural Network (GNN)
+- Hamiltonian Monte Carlo (HMC) <br>
+Hamiltonian Monte Carlo (HMC) is MCMC methods which porposed the next sample based on a simulation of Hamiltonian dynamics.
+To sample from traget unnormalised distribution $P(x)$, HMC introduces fictional Hamiltonian system with auxiliary variables $p$, which has the same dimension to $x$ for momentum in Hamiltonian system. The Hamiltonian in the system is written as follows : $H(x,p) = -ln(P(x)) + \frac{1}{2}p^TMp$, and the target distribution becomes proportional to $e^{-H(x,p)}$.
+Then, the next proposal is chosen by simulating of Hamiltonian dynamics until fixed time $t$ starting from the current position with the momentum sampled from $Normal(0,M)$. The simulation is done by numerically calculating Hamiltonian equations with a leapfrog integrator. Finally, accept the next proposal with Metropolis acceptance ratio. Thanks to time reversible and volume preserving properties of the leapfrog integrator and Hamiltonian dynamics, the ratio is easy to calculate and likely to be close to 1. <br>
+It is well-known that HMC works well in high-dimensional spaces, and there are some proofs of fast convergences of HMC in specific settings of high-dimensional distributions. That's why HMC becomes one of dominent tools for MCMC sampling in continuous spaces. However, HMC doesn't work well when a target distribution has a poor geometry such as multimodality, stiff changes of scales in distribution, no matter how precise the simulation is.
+
+
+- Reparameterisation <br>
+No matter with 
+
+- Probabilistic programming <br>
+Probabilistic programming is 
+
+- Graph Neural Network (GNN) <br>
 
 ## Related Work
 - Neural Transport HMC (NeuTra HMC) [[Hoffman et al., 2019]](https://arxiv.org/abs/1903.03704) <br>
