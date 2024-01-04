@@ -1,7 +1,7 @@
 # Meta-learning Optimal Reparameterisation of Probabilistic Programs
 
 ## Introduction
-Marcov Chain Monte Carlo (MCMC) has been one of successful tools in Bayesian inferences, which gaurantees convergence to exact target statistics.
+Markov Chain Monte Carlo (MCMC) has been one of successful tools in Bayesian inferences, which gaurantees convergence to exact target statistics.
 The main concern in MCMC is to sample in high dimensional spaces, which needs exponentially wide exploration. Therefore, Hamiltonian Monte Carlo (HMC) is widely used to mitigate the obstacle from high dimensionality by using gradients of target distributions to explore the spaces. 
 However, its convergence can be slow or even fail if a target density has poor geometric properties such as a multimodal shape and drastic changes of scale in the target density. 
 
@@ -12,7 +12,7 @@ Finding bijective transforms manually needs deep understanding of the target dis
 Thanks to probabilistic programming, which treats probabilistic models as programs to which methods in programming analysis can be applicable, there were some researches which constructed parameterised bijective functions compatible to the target distribution and learned the parameters to make the functions become an proper reparmetersation.
 However, those researches needs to train the parameters from scaratches for every new model, so it is hard to use their methods in model finding.
 
-In our research, instead of finding a reparameterisation for a speicific model, we tried to meta-learn the reparameterisation; Learning a function which gets probabilistic models (in forms of probabilistic programs) and outputs proper bijective functions for reparameterisation. First, by parsing a probabilistic program, we obtained a graph representation of a probabilistic model. Then, we used GNN on the graph representation to construct bijective functions compatible to the model. Finally, We trained GNN for a wide range of models with a proper probabilistic loss to achieve smooth landscapes of reparemeterised models.
+In our research, instead of finding a reparameterisation for a specific model, we tried to meta-learn the reparameterisation; Learning a function which gets probabilistic models (in forms of probabilistic programs) and outputs proper bijective functions for reparameterisation. First, by parsing a probabilistic program, we obtained a graph representation of a probabilistic model. Then, we used GNN on the graph representation to construct bijective functions compatible to the model. Finally, We trained GNN for a wide range of models with a proper probabilistic loss to achieve smooth landscapes of reparemeterised models.
 
 ## Preliminary
 - Hamiltonian Monte Carlo (HMC) <br>
@@ -62,7 +62,8 @@ Once we train the GNN, we can run the forward pass of GNN and obtain $\lambda$ v
 ## Experiments
 For the training, we randomly generated 1000 Neal's funnel models modified with additional observations $y \sim N(x, \sigma)$ where $y \in [-20, 20]$ and $\sigma \in [0.1, 20]$. As $y$ moves away from $0$ and $\sigma$ approaches $0$, the posterior takes on a different shape from the original Neal's funnel. For the test (i.e., obtaining $\lambda$ and running HMC), we use Neal's funnel models with observations with $y \in \{-20, -10, 0, 10, 20\}$ and $\sigma \in \{0.1, 5.075, 10.05, 15.025, 20\}$.
 
-- Comparison with VIP
+- Comparison with VIP <br>
+[trained_lambda](./dgl/result/neals_funnel/train.pdf)
 - Comparison by effective sample size (ESS)
 - Comparison by Gelman-Rubin (GR) diagnostic
 
