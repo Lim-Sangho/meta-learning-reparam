@@ -91,4 +91,10 @@ It is hard to choose the number of steps $L$ in our GNN.
 If it's too low, signals from observations cannot reach the dependent variables. If it's too high, GNN can fail to learn reparameterisations because of oversmoothing. Moreover, we cannot gaurantee that inputs with the same substructure will have the same sub-results for that substructure, because $L$ will vary among models.
 To solve this obstacle, we can try Implicit GNN which used fixed points of a step function as output instead of fixed interations of the step function. Implicit GNN can catch long range dependence without causing oversmoothing.
 
+- Legitimacy of loss function
+During experiments, we saw that learning parameters in reparameterisation was distrubed by initialisations of guides.
+It is possible that the GNN learns wrong reparameterisations if a guide fails to converge to the optimal shape; GNN will learn the optimal reparameterisation for the wrong guide.
+Instead of using VI-based indirect loss, we can use proper loss from model directly.
+Several theoretical results of HMC shows strong-concavity and smoothness of model's log density is important in a speed of convergence. If we define relaxations of smoothness and concavity and construct estimators, we may use these estimators to define a loss directly calculated from an input model.
+
 - Meta-learning reparameterisation with more flexible transformations, such as inverse autoregressive flows (IAF).
