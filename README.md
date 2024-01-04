@@ -87,6 +87,8 @@ For the training, we randomly generated 1000 Neal's funnel models modified with 
 ## Discussion
 - Implicit GNN <br>
 Time seires model, long range dependence <br>
-Naively increasing the number of steps $(L)$ in the GNN is not a good solution as it can lead to the oversmoothing problem in GNNs.
+It is hard to choose the number of steps $L$ in our GNN.
+If it's too low, signals from observations cannot reach the dependent variables. If it's too high, GNN can fail to learn reparameterisations because of oversmoothing. Moreover, we cannot gaurantee that inputs with the same substructure will have the same sub-results for that substructure, because $L$ will vary among models.
+To solve this obstacle, we can try Implicit GNN which used fixed points of a step function as output instead of fixed interations of the step function. Implicit GNN can catch long range dependence without causing oversmoothing.
 
 - Meta-learning reparameterisation with more flexible transformations, such as inverse autoregressive flows (IAF).
