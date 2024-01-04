@@ -25,18 +25,30 @@ It is well-known that HMC works well in high-dimensional spaces, and there are s
 - Reparameterisation
 
 Reparameterisation in probabilistic model domain is to transform a distribution with bijective functions. For a continuous distribution, probability density of reparameterised distributions can be calculated by inverse functions of used bijective functions and its' Jacovians by chage of variable law. Commonly-used reparameterisations usually have a simple analytic solution: for example, Normal distribution can be reparameterised as follows:
-$$X \sim Normal(\mu, \sigma^2)$$
-$$X = \sigma U + \mu, \, U \sim Normal(0,1).$$
+```math
+z \sim Normal(\mu, \sigma),
+```
+```math
+z = \sigma u + \mu, \, u \sim Normal(0,1).
+```
 Reparameterisation can be used to fix a poor geometry of distributions so that MCMC sampling including HMC work well on the reparemterisaed distributions. Neal's funnel is a famous toy example which shows how reparameterisation mitigate a problem of a poor geometry:
-$$ X \sim Normal(0,1)$$
-$$ Y \sim Normal(0, e^X).$$
+```math
+z \sim Normal(0,1),
+```
+```math
+x \sim Normal(0, e^z).
+```
 The distribution above shows funnel-shaped probabilistic density as belows.
 
 picture
 
 We can see that the density in Neal's funnel has the broad body and the narrow neck. HMC can't explore well on this kinds of shapes because of stiff changes of scale in the density. A large step size of an integrator works well in the body but not in the neck, and a small step size will work in the neck but not in the body. However, Neal's funnel can be easily reparameterised into independant Gaussians as belows:
-$$ X \sim Normal(0,1) $$
-$$ Y = e^{X/2} U, \, U \sim Normal(0,1).$$
+```math
+z \sim Normal(0,1),
+```
+```math
+x = e^z u, \, u \sim Normal(0,1).
+```
 Then, Instead of sampling $X,Y$ directly, we can make a sample of $X,Y$ by sampling from $X,U$ and transfroms the values with the function written above.
 
 We can see that the reparmeterisation in Neal's funnel disconnect direct relationship between $X$ and $Y$. This kinds of reparameterisation is called Non-centred, while a centered reparameterisation, which includes identity functions, remains a direct connection. A non-centred reparameterisation makes density calculation simpler, but it cannot be a master key to fix a poor geometry becuase there exists indirect dependancies between variables usually occurred by observations. We should chose carefully whether we use non-centred or centred reparameterisation according to a distribution landscape of a model.
@@ -53,7 +65,12 @@ The paper introduces NeuTra HMC, a technique that enhances the performance of HM
 - Variationally Inferred Parameterisation (VIP) [[Gorinova et al., 2020]](http://proceedings.mlr.press/v119/gorinova20a/gorinova20a.pdf) <br>
 The VIP algorithm efficiently searches the space of reparameterisation through the gradient-based optimisation of a differentiable variational objective. It can be also used as a pre-processing step for other inference algorithms. <br>
 The paper focuses on the parameterisation applied to normally distributed (or any location-scale family) random variables $z \sim N(\mu, \sigma)$, resulting in
-$$ \hat{z} \sim N(\lambda \mu, \sigma^\lambda), \\ \ \\ z = \mu + \sigma^{1-\lambda} (\hat{z} - \lambda \mu). $$
+```math
+\hat{z} \sim N(\lambda \mu, \sigma^\lambda),
+```
+```math
+z = \mu + \sigma^{1-\lambda} (\hat{z} - \lambda \mu).
+```
 This is a continuous relaxation between the non-centred parameterisation (as a special case $\lambda=0$) and the centred parameterisation (as a special case $\lambda=1$). VIP finds the reparameterised model with $\lambda$ that mostly approximates a diagonal-normal. This parameterisation can be applied to any random variables in the location-scale family.
 
 ## Method
@@ -65,7 +82,9 @@ We converted the generated models into computation graphs. The resulting computa
 
 3. Construct a GNN on the computation graphs. <br>
 For a hyperparameter $d$, each constant node with constant $c$ was initialised by a $d$-dimensional feature vector $[c^0,\, c^1,\, \ldots,\, c^{d-1}]$, and each random variable node was initialised by a $d$-dimensional zero feature vector. Each edge has a type given by its parameterisation (e.g., location/scale of Normal distribution) or deterministic operator (e.g., addition, exponential). Every edge has a $d \times d$ learnable matrix, and edges with the same type share their matrices. The message passing algorithm of the GNN at step $l+1$ is defined by
-$$v^{(l+1)} = \phi^{(l)} \left( \sum_{u \in N(v)} A_{(u, v)} u^{(l)} \right)$$
+```math
+v^{(l+1)} = \phi^{(l)} \left( \sum_{u \in N(v)} A_{(u, v)} u^{(l)} \right)
+```
 where each of $u, v$ is a node, and $v^{(l)}$ is the feature vector of $v$ at step $l$, and $N(v)$ is a set of neighbors of $v$, and $A_{(u, v)}$ is the learnable matrix of the edge $(u, v)$, and $\phi^{(l)}$ is a learnable function constructed by fully connected layers.
 
 4. Train GNN with variational objectives. <br>
@@ -76,7 +95,15 @@ Once we train the GNN, we can run the forward pass of GNN and obtain $\lambda$ v
 
 ## Experiments
 For the training, we randomly generated 1,000 Neal's funnel models modified with additional observations:
-$$ z \sim N(0, 1); \\ x \sim N(0, e^z); \\ y \overset{obs}{\sim} N(x, \sigma); $$
+```math
+z \sim N(0, 1);
+```
+```math
+x \sim N(0, e^z);
+```
+```math
+y \overset{obs}{\sim} N(x, \sigma)
+```
 where $y \in [-20, 20]$ and $\sigma \in [0.1, 20]$. As $y$ moves away from $0$ and $\sigma$ approaches $0$, the posterior takes on a different shape from the original Neal's funnel. For the test, we obtained $\lambda$ by training the GNN on the Neal's funnel models with observations with $y \in \{-20, -10, 0, 10, 20\}$ and $\sigma \in \{0.1, 5.075, 10.05, 15.025, 20\}$, and then applied HMC on the reparameterised model with $\lambda$. For HMC, we used the No-U-Turn Sampler (NUTS), and we took 1,000 initial warm-up steps to sample 20 chains each producing 10,000 samples.
 
 - Comparison with VIP <br>
