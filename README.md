@@ -15,15 +15,31 @@ However, those researches needs to train the parameters from scaratches for ever
 In our research, instead of finding a reparameterisation for a specific model, we tried to meta-learn the reparameterisation; Learning a function which gets probabilistic models (in forms of probabilistic programs) and outputs proper bijective functions for reparameterisation. First, by parsing a probabilistic program, we obtained a graph representation of a probabilistic model. Then, we used GNN on the graph representation to construct bijective functions compatible to the model. Finally, We trained GNN for a wide range of models with a proper probabilistic loss to achieve smooth landscapes of reparemeterised models.
 
 ## Preliminary
-- Hamiltonian Monte Carlo (HMC) <br>
+- Hamiltonian Monte Carlo (HMC)
+
 Hamiltonian Monte Carlo (HMC) is MCMC methods which proposed the next sample based on a simulation of Hamiltonian dynamics.
 To sample from target unnormalised distribution $P(x)$, HMC introduces fictional Hamiltonian system with auxiliary variables $p$, which has the same dimension to $x$ for momentum in Hamiltonian system. The Hamiltonian in the system is written as follows : $H(x,p) = -ln(P(x)) + \frac{1}{2}p^TMp$, and the target distribution becomes proportional to $e^{-H(x,p)}$.
 Then, the next proposal is chosen by simulating of Hamiltonian dynamics until fixed time $t$ starting from the current position with the momentum sampled from $Normal(0,M)$. The simulation is done by numerically calculating Hamiltonian equations with a leapfrog integrator. Finally, accept the next proposal with Metropolis acceptance ratio. Thanks to time reversible and volume preserving properties of the leapfrog integrator and Hamiltonian dynamics, the ratio is easy to calculate and likely to be close to 1. <br>
 It is well-known that HMC works well in high-dimensional spaces, and there are some proofs of fast convergences of HMC in specific settings of high-dimensional distributions. That's why HMC becomes one of dominent tools for MCMC sampling in continuous spaces. However, HMC doesn't work well when a target distribution has a poor geometry such as multimodality, stiff changes of scales in distribution, no matter how precise the simulation is.
 
+- Reparameterisation
 
-- Reparameterisation <br>
-No matter with 
+Reparameterisation in probabilistic model domain is to transform a distribution with bijective functions. For a continuous distribution, probability density of reparameterised distributions can be calculated by inverse functions of used bijective functions and its' Jacovians by chage of variable law. Commonly-used reparameterisations usually have a simple analytic solution: for example, Normal distribution can be reparameterised as follows:
+$$X \sim Normal(\mu, \sigma^2)$$
+$$X = \sigma U + \mu, \, U \sim Normal(0,1).$$
+Reparameterisation can be used to fix a poor geometry of distributions so that MCMC sampling including HMC work well on the reparemterisaed distributions. Neal's funnel is a famous toy example which shows how reparameterisation mitigate a problem of a poor geometry:
+$$ X \sim Normal(0,1)$$
+$$ Y \sim Normal(0, e^X).$$
+The distribution above shows funnel-shaped probabilistic density as belows.
+
+picture
+
+We can see that the density in Neal's funnel has the broad body and the narrow neck. HMC can't explore well on this kinds of shapes because of stiff changes of scale in the density. A large step size of an integrator works well in the body but not in the neck, and a small step size will work in the neck but not in the body. However, Neal's funnel can be easily reparameterised into independant Gaussians as belows:
+$$ X \sim Normal(0,1) $$
+$$ Y = e^{X/2} U, \, U \sim Normal(0,1).$$
+Then, Instead of sampling $X,Y$ directly, we can make a sample of $X,Y$ by sampling from $X,U$ and transfroms the values with the function written above.
+
+We can see that the reparmeterisation in Neal's funnel disconnect direct relationship between $X$ and $Y$. This kinds of reparameterisation is called Non-centred, while a centered reparameterisation, which includes identity functions, remains a direct connection. A non-centred reparameterisation makes density calculation simpler, but it cannot be a master key to fix a poor geometry becuase there exists indirect dependancies between variables usually occurred by observations. We should chose carefully whether we use non-centred or centred reparameterisation according to a distribution landscape of a model.
 
 - Probabilistic programming <br>
 Probabilistic programming is 
@@ -81,6 +97,14 @@ The following figures show the ESS and the GR diagnostics of the HMC samples in 
 ## Discussion
 - Implicit GNN <br>
 Time seires model, long range dependence <br>
-Naively increasing the number of steps $(L)$ in the GNN is not a good solution as it can lead to the oversmoothing problem in GNNs.
+It is hard to choose the number of steps $L$ in our GNN.
+If it's too low, signals from observations cannot reach the dependent variables. If it's too high, GNN can fail to learn reparameterisations because of oversmoothing. Moreover, we cannot gaurantee that inputs with the same substructure will have the same sub-results for that substructure, because $L$ will vary among models.
+To solve this obstacle, we can try Implicit GNN which used fixed points of a step function as output instead of fixed interations of the step function. Implicit GNN can catch long range dependence without causing oversmoothing.
+
+- Legitimacy of loss function
+During experiments, we saw that learning parameters in reparameterisation was distrubed by initialisations of guides.
+It is possible that the GNN learns wrong reparameterisations if a guide fails to converge to the optimal shape; GNN will learn the optimal reparameterisation for the wrong guide.
+Instead of using VI-based indirect loss, we can use proper loss from model directly.
+Several theoretical results of HMC shows strong-concavity and smoothness of model's log density is important in a speed of convergence. If we define relaxations of smoothness and concavity and construct estimators, we may use these estimators to define a loss directly calculated from an input model.
 
 - Meta-learning reparameterisation with more flexible transformations, such as inverse autoregressive flows (IAF).
