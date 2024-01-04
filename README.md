@@ -26,17 +26,17 @@ It is well-known that HMC works well in high-dimensional spaces, and there are s
 
 Reparameterisation in probabilistic model domain is to transform a distribution with bijective functions. For a continuous distribution, probability density of reparameterised distributions can be calculated by inverse functions of used bijective functions and its' Jacovians by chage of variable law. Commonly-used reparameterisations usually have a simple analytic solution: for example, Normal distribution can be reparameterised as follows:
 ```math
-z \sim Normal(\mu, \sigma),
+z \sim N(\mu, \sigma),
 ```
 ```math
-z = \sigma u + \mu, \, u \sim Normal(0,1).
+z = \sigma u + \mu, \, u \sim N(0,1).
 ```
 Reparameterisation can be used to fix a poor geometry of distributions so that MCMC sampling including HMC work well on the reparemterisaed distributions. Neal's funnel is a famous toy example which shows how reparameterisation mitigate a problem of a poor geometry:
 ```math
-z \sim Normal(0,1),
+z \sim N(0,1),
 ```
 ```math
-x \sim Normal(0, e^z).
+x \sim N(0, e^z).
 ```
 The distribution above shows funnel-shaped probabilistic density as belows.
 
@@ -44,10 +44,10 @@ picture
 
 We can see that the density in Neal's funnel has the broad body and the narrow neck. HMC can't explore well on this kinds of shapes because of stiff changes of scale in the density. A large step size of an integrator works well in the body but not in the neck, and a small step size will work in the neck but not in the body. However, Neal's funnel can be easily reparameterised into independant Gaussians as belows:
 ```math
-z \sim Normal(0,1),
+z \sim N(0,1),
 ```
 ```math
-x = e^z u, \, u \sim Normal(0,1).
+x = e^z u, \, u \sim N(0,1).
 ```
 Then, Instead of sampling $X,Y$ directly, we can make a sample of $X,Y$ by sampling from $X,U$ and transfroms the values with the function written above.
 
@@ -140,3 +140,5 @@ Instead of using VI-based indirect loss, we can use proper loss from model direc
 Several theoretical results of HMC shows strong-concavity and smoothness of model's log density is important in a speed of convergence. If we define relaxations of smoothness and concavity and construct estimators, we may use these estimators to define a loss directly calculated from an input model.
 
 - Meta-learning reparameterisation with more flexible transformations, such as inverse autoregressive flows (IAF)
+
+Both VIP and our approach use the restricted transformation for the reparameterisation. The reparameterisation only works for the location-scale family random variables. Also, it may not have sufficient expressive power to transform the diagonal normal distribution into various complex shapes of the posterior. If we can meta-learn more flexible bijective transformations like IAF using our method, we may learn reparameterisations for much broader range of complex distributions which is applicable to any family of random variables.
