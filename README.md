@@ -59,10 +59,12 @@ Probabilistic programming is
 - Graph Neural Network (GNN) <br>
 
 ## Related Work
-- Neural Transport HMC (NeuTra HMC) [[Hoffman et al., 2019]](https://arxiv.org/abs/1903.03704) <br>
+- Neural Transport HMC (NeuTra HMC) [[Hoffman et al., 2019]](https://arxiv.org/abs/1903.03704)
+
 The paper introduces NeuTra HMC, a technique that enhances the performance of HMC in sampling from challenging posterior distributions. By incorporating inverse autoregressive flows (IAF) and a neural variational inference technique, NeuTra HMC addresses unfavorable geometry in the posterior, allowing for faster convergence and improved asymptotic effective sample sizes. The approach builds upon previous work on transport maps, adapting more powerful and scalable IAF maps to train variational autoencoders (VAEs).
 
-- Variationally Inferred Parameterisation (VIP) [[Gorinova et al., 2020]](http://proceedings.mlr.press/v119/gorinova20a/gorinova20a.pdf) <br>
+- Variationally Inferred Parameterisation (VIP) [[Gorinova et al., 2020]](http://proceedings.mlr.press/v119/gorinova20a/gorinova20a.pdf)
+
 The VIP algorithm efficiently searches the space of reparameterisation through the gradient-based optimisation of a differentiable variational objective. It can be also used as a pre-processing step for other inference algorithms. <br>
 The paper focuses on the parameterisation applied to normally distributed (or any location-scale family) random variables $z \sim N(\mu, \sigma)$, resulting in
 ```math
@@ -106,7 +108,8 @@ y \overset{obs}{\sim} N(x, \sigma)
 ```
 where $y \in [-20, 20]$ and $\sigma \in [0.1, 20]$. As $y$ moves away from $0$ and $\sigma$ approaches $0$, the posterior takes on a different shape from the original Neal's funnel. For the test, we obtained $\lambda$ by training the GNN on the Neal's funnel models with observations with $y \in \{-20, -10, 0, 10, 20\}$ and $\sigma \in \{0.1, 5.075, 10.05, 15.025, 20\}$, and then applied HMC on the reparameterised model with $\lambda$. For HMC, we used the No-U-Turn Sampler (NUTS), and we took 1,000 initial warm-up steps to sample 20 chains each producing 10,000 samples.
 
-- Comparison with VIP <br>
+- Comparison with VIP
+
 The following figures show the $\lambda$ values learned using VIP and our meta-learning approach with respect to $y$ and $\sigma$. In our approach, we took 1,000 additional warm-up steps where the GNN was frozen and only the diagonal normal guide was trained.
 
 |     |     |
@@ -114,7 +117,8 @@ The following figures show the $\lambda$ values learned using VIP and our meta-l
 | VIP | ![train](dgl/result/neals_funnel/vip.png) |
 | Ours | ![train](dgl/result/neals_funnel/auto.png) |
 
-- Comparison by effective sample size (ESS) and Gelman-Rubin (GR) diagnostics <br>
+- Comparison by effective sample size (ESS) and Gelman-Rubin (GR) diagnostics
+
 The following figures show the ESS and the GR diagnostics of the HMC samples in 4 different approaches. "No" corresponds to the centred parameterisation $(\lambda = 1)$, "full" corresponds to the non-centred parameterisation $(\lambda = 0)$, "half" corresponds to the parameterisation with $\lambda = 0.5$, and "auto" exhibits our approach with meta-learned $\lambda$.
 
 ![train](dgl/result/neals_funnel/ess.png)
@@ -122,16 +126,17 @@ The following figures show the ESS and the GR diagnostics of the HMC samples in 
 ![train](dgl/result/neals_funnel/gr.png)
 
 ## Discussion
-- Implicit GNN <br>
-Time seires model, long range dependence <br>
+- Implicit GNN
+
 It is hard to choose the number of steps $L$ in our GNN.
-If it's too low, signals from observations cannot reach the dependent variables. If it's too high, GNN can fail to learn reparameterisations because of oversmoothing. Moreover, we cannot gaurantee that inputs with the same substructure will have the same sub-results for that substructure, because $L$ will vary among models.
-To solve this obstacle, we can try Implicit GNN which used fixed points of a step function as output instead of fixed interations of the step function. Implicit GNN can catch long range dependence without causing oversmoothing.
+If it's too low, signals from observations cannot reach the dependent variables. If it's too high, GNN can fail to learn reparameterisations because of oversmoothing. Moreover, we cannot guarantee that inputs with the same substructure will have the same sub-results for that substructure, because $L$ will vary among models.
+To solve this obstacle, we can try Implicit GNN which uses fixed points of the update function as output instead of the fixed iterations of updates. Implicit GNN can catch long range dependence without causing oversmoothing.
 
 - Legitimacy of loss function
-During experiments, we saw that learning parameters in reparameterisation was distrubed by initialisations of guides.
+
+During experiments, we saw that learning parameters in reparameterisation was disturbed by initialisations of guides.
 It is possible that the GNN learns wrong reparameterisations if a guide fails to converge to the optimal shape; GNN will learn the optimal reparameterisation for the wrong guide.
 Instead of using VI-based indirect loss, we can use proper loss from model directly.
 Several theoretical results of HMC shows strong-concavity and smoothness of model's log density is important in a speed of convergence. If we define relaxations of smoothness and concavity and construct estimators, we may use these estimators to define a loss directly calculated from an input model.
 
-- Meta-learning reparameterisation with more flexible transformations, such as inverse autoregressive flows (IAF).
+- Meta-learning reparameterisation with more flexible transformations, such as inverse autoregressive flows (IAF)
