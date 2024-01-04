@@ -16,8 +16,8 @@ In our research, instead of finding a reparameterisation for a specific model, w
 
 ## Preliminary
 - Hamiltonian Monte Carlo (HMC) <br>
-Hamiltonian Monte Carlo (HMC) is MCMC methods which porposed the next sample based on a simulation of Hamiltonian dynamics.
-To sample from traget unnormalised distribution $P(x)$, HMC introduces fictional Hamiltonian system with auxiliary variables $p$, which has the same dimension to $x$ for momentum in Hamiltonian system. The Hamiltonian in the system is written as follows : $H(x,p) = -ln(P(x)) + \frac{1}{2}p^TMp$, and the target distribution becomes proportional to $e^{-H(x,p)}$.
+Hamiltonian Monte Carlo (HMC) is MCMC methods which proposed the next sample based on a simulation of Hamiltonian dynamics.
+To sample from target unnormalised distribution $P(x)$, HMC introduces fictional Hamiltonian system with auxiliary variables $p$, which has the same dimension to $x$ for momentum in Hamiltonian system. The Hamiltonian in the system is written as follows : $H(x,p) = -ln(P(x)) + \frac{1}{2}p^TMp$, and the target distribution becomes proportional to $e^{-H(x,p)}$.
 Then, the next proposal is chosen by simulating of Hamiltonian dynamics until fixed time $t$ starting from the current position with the momentum sampled from $Normal(0,M)$. The simulation is done by numerically calculating Hamiltonian equations with a leapfrog integrator. Finally, accept the next proposal with Metropolis acceptance ratio. Thanks to time reversible and volume preserving properties of the leapfrog integrator and Hamiltonian dynamics, the ratio is easy to calculate and likely to be close to 1. <br>
 It is well-known that HMC works well in high-dimensional spaces, and there are some proofs of fast convergences of HMC in specific settings of high-dimensional distributions. That's why HMC becomes one of dominent tools for MCMC sampling in continuous spaces. However, HMC doesn't work well when a target distribution has a poor geometry such as multimodality, stiff changes of scales in distribution, no matter how precise the simulation is.
 
@@ -37,8 +37,7 @@ The paper introduces NeuTra HMC, a technique that enhances the performance of HM
 - Variationally Inferred Parameterisation (VIP) [[Gorinova et al., 2020]](http://proceedings.mlr.press/v119/gorinova20a/gorinova20a.pdf) <br>
 The VIP algorithm efficiently searches the space of reparameterisation through the gradient-based optimisation of a differentiable variational objective. It can be also used as a pre-processing step for other inference algorithms. <br>
 The paper focuses on the parameterisation applied to normally distributed (or any location-scale family) random variables $z \sim N(\mu, \sigma)$, resulting in
-$$\hat{z} \sim N(\lambda \mu, \sigma^\lambda),$$
-$$ z = \mu + \sigma^{1-\lambda} (\hat{z} - \lambda \mu).$$
+$$ \hat{z} \sim N(\lambda \mu, \sigma^\lambda), \\ \ \\ z = \mu + \sigma^{1-\lambda} (\hat{z} - \lambda \mu). $$
 This is a continuous relaxation between the non-centred parameterisation (as a special case $\lambda=0$) and the centred parameterisation (as a special case $\lambda=1$). VIP finds the reparameterised model with $\lambda$ that mostly approximates a diagonal-normal. This parameterisation can be applied to any random variables in the location-scale family.
 
 ## Method
@@ -60,12 +59,24 @@ If a random variable node $v$ is in the location-scale family, we use its GNN ou
 Once we train the GNN, we can run the forward pass of GNN and obtain $\lambda$ values of new models that are not included in the training dataset. With these $\lambda$'s, we reparameterised the model and then applied HMC on top of it.
 
 ## Experiments
-For the training, we randomly generated 1000 Neal's funnel models modified with additional observations $y \sim N(x, \sigma)$ where $y \in [-20, 20]$ and $\sigma \in [0.1, 20]$. As $y$ moves away from $0$ and $\sigma$ approaches $0$, the posterior takes on a different shape from the original Neal's funnel. For the test (i.e., obtaining $\lambda$ and running HMC), we use Neal's funnel models with observations with $y \in \{-20, -10, 0, 10, 20\}$ and $\sigma \in \{0.1, 5.075, 10.05, 15.025, 20\}$.
+For the training, we randomly generated 1,000 Neal's funnel models modified with additional observations:
+$$ z \sim N(0, 1); \\ x \sim N(0, e^z); \\ y \overset{obs}{\sim} N(x, \sigma); $$
+where $y \in [-20, 20]$ and $\sigma \in [0.1, 20]$. As $y$ moves away from $0$ and $\sigma$ approaches $0$, the posterior takes on a different shape from the original Neal's funnel. For the test, we obtained $\lambda$ by training the GNN on the Neal's funnel models with observations with $y \in \{-20, -10, 0, 10, 20\}$ and $\sigma \in \{0.1, 5.075, 10.05, 15.025, 20\}$, and then applied HMC on the reparameterised model with $\lambda$. For HMC, we used the No-U-Turn Sampler (NUTS), and we took 1,000 initial warm-up steps to sample 20 chains each producing 10,000 samples.
 
 - Comparison with VIP <br>
-[trained_lambda](./dgl/result/neals_funnel/train.pdf)
-- Comparison by effective sample size (ESS)
-- Comparison by Gelman-Rubin (GR) diagnostic
+The following figures show the $\lambda$ values learned using VIP and our meta-learning approach with respect to $y$ and $\sigma$. In our approach, we took 1,000 additional warm-up steps where the GNN was frozen and only the diagonal normal guide was trained.
+
+|     |     |
+| --- | --- |
+| VIP | ![train](dgl/result/neals_funnel/vip.png) |
+| Ours | ![train](dgl/result/neals_funnel/auto.png) |
+
+- Comparison by effective sample size (ESS) and Gelman-Rubin (GR) diagnostics <br>
+The following figures show the ESS and the GR diagnostics of the HMC samples in 4 different approaches. "No" corresponds to the centred parameterisation $(\lambda = 1)$, "full" corresponds to the non-centred parameterisation $(\lambda = 0)$, "half" corresponds to the parameterisation with $\lambda = 0.5$, and "auto" exhibits our approach with meta-learned $\lambda$.
+
+![train](dgl/result/neals_funnel/ess.png)
+
+![train](dgl/result/neals_funnel/gr.png)
 
 ## Discussion
 - Implicit GNN <br>
