@@ -53,10 +53,21 @@ Then, Instead of sampling $X,Y$ directly, we can make a sample of $X,Y$ by sampl
 
 We can see that the reparmeterisation in Neal's funnel disconnect direct relationship between $X$ and $Y$. This kinds of reparameterisation is called Non-centred, while a centered reparameterisation, which includes identity functions, remains a direct connection. A non-centred reparameterisation makes density calculation simpler, but it cannot be a master key to fix a poor geometry becuase there exists indirect dependancies between variables usually occurred by observations. We should chose carefully whether we use non-centred or centred reparameterisation according to a distribution landscape of a model.
 
-- Probabilistic programming <br>
-Probabilistic programming is 
+- Probabilistic programming
 
-- Graph Neural Network (GNN) <br>
+Probabilistic programming is a pradigm to use a programming language (called a probabilistic programming language, PPL) to express a broad range of probabilistic models and do inference on those models automatically by using technics in programming language theory. Usually, a PPL consists of two parts; a model and an inference. In the model part, users can declare random variables with certain distributions and use them in common commands in programming languages including assignments and control statements. Therefore, the PPL can express complex models such as a time-series model or a hierarchical model. Moreoever, observations can be placed on certain random variables. In the inference part, the user can do inference on the model without caring details. From basic operations like sampling and density calculation, the user can construct more complex inferences; PPLs usually provide presets for popular inferences such as MCMC, VI, MAP, and etc.
+Using PPLs, Researchers in the field of probabilistic inference can test their ideas without writing code for basic calculations, which is error-prone and time-consuming.
+
+- Graph Neural Network (GNN)
+
+A graph neural network (GNN) is a neural network working on a graph structure. an usual GNN has a form of a message-passing algorithm where processing of messages is done by neural networks. A message-passing layer for each node $u$ can be expressed as belows:
+
+$$ h'_u = \phi(\bigoplus_{v \in N_u} \psi(h_u, h_v, e_{uv}))$$
+
+where $N_u$ is the neighbourhood of $u$, and $\bigoplus$ is a permutaion-invariant aggregation function, and $\phi, \psi$ are neural networks and $h_{-}, e_{-}$ are current features for nodes and edges. Most GNNs are contructed with several message-passing layers and use features in the final layers to predict the characteristics of graph data.
+
+GNNs are widely used in Chemistry, Biology, Social science, where graph structures are naturally emerged in data.
+
 
 ## Related Work
 - Neural Transport HMC (NeuTra HMC) [[Hoffman et al., 2019]](https://arxiv.org/abs/1903.03704)
