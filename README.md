@@ -2,17 +2,16 @@
 
 ## Introduction
 Markov Chain Monte Carlo (MCMC) has been one of successful tools in Bayesian inferences, which gaurantees convergence to exact target statistics.
-The main concern in MCMC is to sample in high dimensional spaces, which needs exponentially wide exploration. Therefore, Hamiltonian Monte Carlo (HMC) is widely used to mitigate the obstacle from high dimensionality by using gradients of target distributions to explore the spaces. 
-However, its convergence can be slow or even fail if a target density has poor geometric properties such as a multimodal shape and drastic changes of scale in the target density. 
+The main concern in MCMC is to sample in high dimensional spaces, which grow exponentially on their dimensions. Hamiltonian Monte Carlo (HMC) is a widely used approach for mitigating this challenge from high dimensionality. It does so by using gradients of target distributions to explore the spaces. 
+However, the convergence of HMC can still be slow or even fail if a target density has poor geometric properties such as having multiple modes or drastic changes in scale.
 
-Reparameterisation, which transforms the target distribution with bijective functions so that the target, is one of a frequently-uesd method to change the poor landscape of the target distribution into a proper landscape.
-Since appropriate bijective functions for reparameterisation is specific to the target distribution, 
-Finding bijective transforms manually needs deep understanding of the target distribution. 
+Reparameterisation, which transforms the target distribution with a bijective function, is one of the most frequently-uesd methods to change the poor landscape of the target distribution into an easier-to-explore landscape. However, 
+since an appropriate bijective function for reparameterisation is specific to the target distribution, finding an effective bijective map manually is non-trivial and requires deep understanding of the target distribution. 
 
-Thanks to probabilistic programming, which treats probabilistic models as programs to which methods in programming analysis can be applicable, there were some researches which constructed parameterised bijective functions compatible to the target distribution and learned the parameters to make the functions become an proper reparmetersation.
-However, those researches needs to train the parameters from scaratches for every new model, so it is hard to use their methods in model finding.
+By leveraging the benefits of probabilistic programming, which treats probabilistic models as programs to which methods in programming analysis can be applicable, some researchers proposed a method that constructs a parameterised bijective function compatible to the target distribution and learns appropriate parameterswhich make the function an effective reparmetersation.
+However, this method requires the learning of the parameters from scratch for every new model, and this makes the method inappropriate in particular for model finding. 
 
-In our research, instead of finding a reparameterisation for a specific model, we tried to meta-learn the reparameterisation; Learning a function which gets probabilistic models (in forms of probabilistic programs) and outputs proper bijective functions for reparameterisation. First, by parsing a probabilistic program, we obtained a graph representation of a probabilistic model. Then, we used GNN on the graph representation to construct bijective functions compatible to the model. Finally, We trained GNN for a wide range of models with a proper probabilistic loss to achieve smooth landscapes of reparemeterised models.
+In our research, instead of finding a reparameterisation for a specific model, we tried to meta-learn the reparameterisation. Learning a function which gets probabilistic models (in forms of probabilistic programs) and outputs proper bijective functions for reparameterisation. First, by parsing a probabilistic program, we obtained a graph representation of a probabilistic model. Then, we used GNN on the graph representation to construct bijective functions compatible to the model. Finally, We trained GNN for a wide range of models with a proper probabilistic loss to achieve smooth landscapes of reparemeterised models.
 
 ## Preliminary
 - Hamiltonian Monte Carlo (HMC)
