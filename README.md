@@ -16,8 +16,8 @@ In our research, instead of finding a reparameterisation for each given model, w
 ## Preliminary
 - Hamiltonian Monte Carlo (HMC)
 
-Hamiltonian Monte Carlo (HMC) is MCMC methods which proposed the next sample based on a simulation of Hamiltonian dynamics.
-To sample from target unnormalised distribution $P(x)$, HMC introduces fictional Hamiltonian system with auxiliary variables $p$, which has the same dimension to $x$ for momentum in Hamiltonian system. The Hamiltonian in the system is written as follows : $H(x,p) = -ln(P(x)) + \frac{1}{2}p^TMp$, and the target distribution becomes proportional to $e^{-H(x,p)}$.
+Hamiltonian Monte Carlo (HMC) is an MCMC method which proposes the next sample based on a simulation of Hamiltonian dynamics.
+To sample from a target unnormalised distribution $P(x)$, HMC introduces a fictional Hamiltonian system with auxiliary variables $p$, which has the same dimension as $x$ and represents the momentum in the Hamiltonian dynamics. The Hamiltonian in the system is written as follows: $H(x,p) = -\mathit{ln}(P(x)) + \frac{1}{2}p^TMp$, and the target distribution becomes proportional to $e^{-H(x,p)}$.
 Then, the next proposal is chosen by simulating of Hamiltonian dynamics until fixed time $t$ starting from the current position with the momentum sampled from $Normal(0,M)$. The simulation is done by numerically calculating Hamiltonian equations with a leapfrog integrator. Finally, accept the next proposal with Metropolis acceptance ratio. Thanks to time reversible and volume preserving properties of the leapfrog integrator and Hamiltonian dynamics, the ratio is easy to calculate and likely to be close to 1. <br>
 It is well-known that HMC works well in high-dimensional spaces, and there are some proofs of fast convergences of HMC in specific settings of high-dimensional distributions. That's why HMC becomes one of dominent tools for MCMC sampling in continuous spaces. However, HMC doesn't work well when a target distribution has a poor geometry such as multimodality, stiff changes of scales in distribution, no matter how precise the simulation is.
 
