@@ -24,34 +24,34 @@ It is well-known that HMC works well for high-dimensional problems, and there ar
 
 - Reparameterisation
 
-Reparameterisation in probabilistic model domain is to transform a distribution with bijective functions. For a continuous distribution, probability density of reparameterised distributions can be calculated by inverse functions of used bijective functions and its' Jacovians by chage of variable law. Commonly-used reparameterisations usually have a simple analytic solution: for example, Normal distribution can be reparameterised as follows:
+Reparameterisation of a probabilistic model means the transformation of the distribution of the model with a bijective function. For a continuous distribution, the probability density of a reparameterised distribution can be calculated in terms of the inverse function of the used bijective function and its Jacobian. Commonly-used reparameterisations usually have simple analytic solutions: for example, the Normal distribution can be reparameterised as follows:
 ```math
 z \sim N(\mu, \sigma),
 ```
 ```math
 z = \sigma u + \mu, \, u \sim N(0,1).
 ```
-Reparameterisation can be used to fix a poor geometry of distributions so that MCMC sampling including HMC work well on the reparemterisaed distributions. Neal's funnel is a famous toy example which shows how reparameterisation mitigate a problem of a poor geometry:
+Reparameterisation can be used to fix the poor geometry of a target distribution so that the MCMC sampler such as HMC works well on the reparemterisaed distribution. Neal's funnel is a famous toy example which shows how reparameterisation mitigates the problem of poor geometry:
 ```math
 z \sim N(0,1),
 ```
 ```math
 x \sim N(0, e^z).
 ```
-The distribution above shows funnel-shaped probabilistic density as belows.
+The distribution above shows the funnel-shaped probabilistic density as shown below:
 
 picture
 
-We can see that the density in Neal's funnel has the broad body and the narrow neck. HMC can't explore well on this kinds of shapes because of stiff changes of scale in the density. A large step size of an integrator works well in the body but not in the neck, and a small step size will work in the neck but not in the body. However, Neal's funnel can be easily reparameterised into independant Gaussians as belows:
+We can see that the density in Neal's funnel has the broad body and the narrow neck. HMC cannot explore this density effectively because of the stiff change of scale in the density. A large step size of the integrator of the HMC would work well in the body but not in the neck, and a small step size of the integrator would work in the neck but not in the body. However, Neal's funnel can be easily reparameterised into independant Gaussians as shown below:
 ```math
 z \sim N(0,1),
 ```
 ```math
 x = e^z u, \, u \sim N(0,1).
 ```
-Then, Instead of sampling $X,Y$ directly, we can make a sample of $X,Y$ by sampling from $X,U$ and transfroms the values with the function written above.
+Then, Instead of sampling $X,Y$ directly, we can generate $X,Y$ by first sampling $X,U$ and next transfroming the sampled values with the function shown above.
 
-We can see that the reparmeterisation in Neal's funnel disconnect direct relationship between $X$ and $Y$. This kinds of reparameterisation is called Non-centred, while a centered reparameterisation, which includes identity functions, remains a direct connection. A non-centred reparameterisation makes density calculation simpler, but it cannot be a master key to fix a poor geometry becuase there exists indirect dependancies between variables usually occurred by observations. We should chose carefully whether we use non-centred or centred reparameterisation according to a distribution landscape of a model.
+We can see that the reparmeterisation in Neal's funnel removes the direct dependency between $X$ and $Y$. This kind of reparameterisation is called non-centred, while the centered reparameterisation, which includes the identity function, keeps the direct dependency between random variables. The non-centred reparameterisation simplies the density, but it is not a master key to fix the poor geometry because in typical models, there exists the indirect dependancy between variables induced by observations, and such a dependency cannot be eliminated by the non-centred reparameterisation. We should choose carefully whether we use non-centred or centred reparameterisation according to the shape of the density of the target model.
 
 - Probabilistic programming
 
