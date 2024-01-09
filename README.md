@@ -62,7 +62,9 @@ Using PPLs, Researchers in the field of probabilistic inference can test their i
 
 A graph neural network (GNN) is a neural network working on a graph structure. an usual GNN has a form of a message-passing algorithm where processing of messages is done by neural networks. A message-passing layer for each node $u$ can be expressed as belows:
 
-$$ h'_u = \phi(\bigoplus_{v \in N_u} \psi(h_u, h_v, e_{uv}))$$
+```math
+h'_u = \phi(\bigoplus_{v \in N_u} \psi(h_u, h_v, e_{uv}))
+```
 
 where $N_u$ is the neighbourhood of $u$, and $\bigoplus$ is a permutaion-invariant aggregation function, and $\phi, \psi$ are neural networks and $h_{-}, e_{-}$ are current features for nodes and edges. Most GNNs are contructed with several message-passing layers and use features in the final layers to predict the characteristics of graph data.
 
